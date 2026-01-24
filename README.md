@@ -5,6 +5,7 @@ Project templates for quick bootstrapping with automatic renaming.
 ## Quick Start
 
 **Interactive mode:**
+
 ```bash
 mkdir my-project && cd my-project
 git init
@@ -12,11 +13,13 @@ bash <(curl -fsSL "https://cdn.jsdelivr.net/gh/alek-ellegard/templates@master/ge
 ```
 
 **Non-interactive mode (for agents/scripts):**
+
 ```bash
 ./get-template.sh -c cli -t uv-typer-command-handler -n my_project
 ```
 
 **List available templates:**
+
 ```bash
 ./get-template.sh --list
 ```
@@ -40,9 +43,12 @@ npx degit alek-ellegard/templates/cli/uv-typer-command-handler my-project
 
 ## Creating New Templates
 
+claude 'use skill template-scaffolder - create new cli template for ..'
+
 See [ai_docs/guide.md](ai_docs/guide.md) for detailed instructions.
 
 **Quick summary:**
+
 1. Create `<category>/<template-name>/` directory
 2. Use a placeholder name (e.g., `myapi`) consistently in:
    - `src/<placeholder>/` directory

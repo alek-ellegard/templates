@@ -7,7 +7,7 @@ from mycli.tui.console import TUI
 class AppConfig:
     def __init__(self, data_dir: Path | None = None) -> None:
         if data_dir is None:
-            data_dir = Path.home() / ".mycli"
+            data_dir = Path.home() / ".config" / "mycli"
         self.data_dir = data_dir
         self.users_file = self.data_dir / "users.json"
 

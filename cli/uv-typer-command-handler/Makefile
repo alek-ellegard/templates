@@ -1,7 +1,10 @@
 .PHONY: install format lint typecheck test run ci clean
 
 install:
-	uv sync
+	uv tool install . 
+
+install-dev:
+	uv tool install -e . 
 
 format:
 	uv run ruff format .

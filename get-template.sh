@@ -2,8 +2,14 @@
 set -euo pipefail
 
 REPO="alek-ellegard/templates"
-BRANCH="master"
-ARCHIVE_URL="https://github.com/${REPO}/archive/refs/heads/${BRANCH}.tar.gz"
+
+# === TEMPLATE REGISTRY ===
+# Format: "name|path|description"
+# Add new templates here
+TEMPLATES=(
+    "mycli|cli/uv-typer-command-handler|Modern Python CLI with uv, Typer, and Rich"
+)
+# =========================
 
 # Colors (disabled if not terminal)
 if [[ -t 1 ]]; then
@@ -20,76 +26,26 @@ info()    { echo -e "${BLUE}→${NC} $1"; }
 success() { echo -e "${GREEN}✓${NC} $1"; }
 error()   { echo -e "${RED}✗${NC} $1" >&2; exit 1; }
 
-# Check dependencies
-command -v curl >/dev/null 2>&1 || error "curl is required"
-command -v tar >/dev/null 2>&1 || error "tar is required"
-command -v python3 >/dev/null 2>&1 || error "python3 is required"
+# Check for degit (npx or global)
+if command -v degit >/dev/null 2>&1; then
+    DEGIT="degit"
+elif command -v npx >/dev/null 2>&1; then
+    DEGIT="npx -y degit"
+else
+    error "Node.js is required. Install it from https://nodejs.org"
+fi
 
-# Download and extract repo
-info "Fetching templates..."
-
-TEMP_DIR=$(mktemp -d)
-trap 'rm -rf "$TEMP_DIR"' EXIT
-
-curl -fsSL "$ARCHIVE_URL" | tar -xz -C "$TEMP_DIR"
-
-REPO_DIR="${TEMP_DIR}/templates-${BRANCH}"
-
-# Discover templates by finding pyproject.toml files and extract metadata
-TEMPLATES_JSON=$(REPO_DIR="$REPO_DIR" python3 << 'PYTHON'
-import os
-import json
-from pathlib import Path
-
-try:
-    import tomllib
-except ImportError:
-    import tomli as tomllib  # fallback for Python < 3.11
-
-repo_dir = Path(os.environ["REPO_DIR"])
-templates = []
-
-for pyproject in repo_dir.rglob("pyproject.toml"):
-    # Skip root pyproject.toml if exists
-    if pyproject.parent == repo_dir:
-        continue
-
-    try:
-        data = tomllib.loads(pyproject.read_text())
-        project = data.get("project", {})
-        name = project.get("name", pyproject.parent.name)
-        description = project.get("description", "No description")
-        rel_path = str(pyproject.parent.relative_to(repo_dir))
-        templates.append({
-            "name": name,
-            "path": rel_path,
-            "description": description
-        })
-    except Exception:
-        continue
-
-print(json.dumps(templates))
-PYTHON
-)
-
-# Parse JSON into bash arrays
+# Parse templates
 declare -a NAMES=()
 declare -a PATHS=()
 declare -a DESCS=()
 
-while IFS= read -r line; do
-    NAMES+=("$line")
-done < <(echo "$TEMPLATES_JSON" | python3 -c "import sys,json; [print(t['name']) for t in json.load(sys.stdin)]")
-
-while IFS= read -r line; do
-    PATHS+=("$line")
-done < <(echo "$TEMPLATES_JSON" | python3 -c "import sys,json; [print(t['path']) for t in json.load(sys.stdin)]")
-
-while IFS= read -r line; do
-    DESCS+=("$line")
-done < <(echo "$TEMPLATES_JSON" | python3 -c "import sys,json; [print(t['description']) for t in json.load(sys.stdin)]")
-
-[[ ${#NAMES[@]} -eq 0 ]] && error "No templates found"
+for entry in "${TEMPLATES[@]}"; do
+    IFS='|' read -r name path desc <<< "$entry"
+    NAMES+=("$name")
+    PATHS+=("$path")
+    DESCS+=("$desc")
+done
 
 # Select template
 select_with_fzf() {
@@ -153,8 +109,9 @@ fi
 # Check if destination exists
 [[ -e "$DEST" ]] && error "Destination '$DEST' already exists"
 
-# Move template to destination
-mv "${REPO_DIR}/${TEMPLATE_PATH}" "$DEST"
+# Download using degit
+info "Downloading template '${SELECTED}'..."
+$DEGIT "${REPO}/${TEMPLATE_PATH}" "$DEST"
 
 success "Template '${SELECTED}' downloaded to '${DEST}'"
 echo ""

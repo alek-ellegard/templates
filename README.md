@@ -4,32 +4,22 @@ A collection of project templates for quick bootstrapping.
 
 ## Quick Start
 
-Run this command to interactively select and download a template:
-
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alek-ellegard/templates/master/get-template.sh | bash
+npx degit alek-ellegard/templates/cli/uv-typer-command-handler my-project
+cd my-project
+make install
 ```
 
-If you have `fzf` installed, you'll get fuzzy search selection. Otherwise, a numbered menu is shown.
+## Available Templates
 
-**Requirements:** curl, tar, python3 (3.11+ or with `tomli` installed)
-
-## Direct Download
-
-If you know which template you want, use [degit](https://github.com/Rich-Harris/degit):
-
-```bash
-npx degit alek-ellegard/templates/cli/uv-typer-command-handler my-cli
-```
+| Template | Path | Description |
+|----------|------|-------------|
+| mycli | `cli/uv-typer-command-handler` | Modern Python CLI with uv, Typer, and Rich |
 
 ## Adding New Templates
 
 1. Create your template in a category directory (e.g., `cli/`, `api/`)
-2. Ensure it has a `pyproject.toml` with `name` and `description` fields:
-   ```toml
-   [project]
-   name = "my-template"
-   description = "Short description shown in template picker"
+2. Add entry to `TEMPLATES` array in `get-template.sh`:
+   ```bash
+   "name|category/template-dir|Description"
    ```
-
-Templates are auto-discovered from `pyproject.toml` files - no manifest needed.

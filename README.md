@@ -54,7 +54,7 @@ npx degit alek-ellegard/templates/cli/uv-typer-command-handler my-project
 
 ## Creating New Templates
 
-claude 'use skill template-scaffolder - create new cli template for ..'
+`claude 'use skill template-scaffolder - create new cli template for ..'`
 
 See [ai_docs/guide.md](ai_docs/guide.md) for detailed instructions.
 

@@ -206,29 +206,14 @@ make install && make test
 
 ## Reference
 
-Template auto-detection reads `name` from pyproject.toml. The get-template.sh script:
-1. Downloads template via degit
-2. Reads pyproject.toml to find placeholder name
-3. Renames src/<placeholder>/ to src/<project_name>/
-4. Updates pyproject.toml name and entrypoint
-5. Updates all Python imports
+### How Templates Are Consumed
 
-### Non-Interactive Mode (for Agents)
+When users download a template via `get-template.sh`:
+1. Script reads `name` from pyproject.toml to find placeholder
+2. Renames `src/<placeholder>/` to `src/<project_name>/`
+3. Updates pyproject.toml name and entrypoint
+4. Updates all Python imports
 
-```bash
-# List available templates
-./get-template.sh --list
-
-# Download specific template
-./get-template.sh -c cli -t uv-typer-command-handler -d . -n my_project
-```
-
-| Option | Description |
-|--------|-------------|
-| `-c, --category` | Template category (cli, api, lib) |
-| `-t, --template` | Template name |
-| `-d, --dest` | Destination path (default: .) |
-| `-n, --name` | Project name for renaming |
-| `-l, --list` | List templates and exit |
+**This means:** Your template's placeholder name MUST be consistent across all files for renaming to work correctly.
 
 Full guide: [ai_docs/guide.md](../../ai_docs/guide.md)

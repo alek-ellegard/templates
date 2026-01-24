@@ -1,3 +1,5 @@
-from mycli.commands import users
+"""Command modules for the CLI."""
 
-__all__ = ["users"]
+from mycli.commands.users import app as users_app
+
+__all__ = ["users_app"]

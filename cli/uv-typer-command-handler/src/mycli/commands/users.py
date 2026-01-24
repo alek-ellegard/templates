@@ -1,9 +1,7 @@
 import typer
-from pathlib import Path
 from typing import Annotated
 
 from mycli.handlers import UserHandler
-from mycli.repository import JsonUserRepository
 from mycli.tui import TUI
 from mycli.exceptions import CLIError
 
@@ -11,29 +9,27 @@ app = typer.Typer(help="User management commands")
 
 
 def get_handler(ctx: typer.Context) -> UserHandler:
-    """Get UserHandler with configured repository.
+    """Get UserHandler from context.
 
     Args:
-        ctx: Typer context containing obj dict with repo_path
+        ctx: Typer context containing obj dict with user_handler
 
     Returns:
-        Configured UserHandler instance
+        UserHandler instance from application context
     """
-    repo_path = ctx.obj.get("repo_path", Path.home() / ".mycli" / "users.json")
-    repo = JsonUserRepository(repo_path)
-    return UserHandler(repo)
+    return ctx.obj["user_handler"]
 
 
 def get_tui(ctx: typer.Context) -> TUI:
     """Get TUI instance from context.
 
     Args:
-        ctx: Typer context containing obj dict with optional tui
+        ctx: Typer context containing obj dict with tui
 
     Returns:
         TUI instance for output
     """
-    return ctx.obj.get("tui", TUI())
+    return ctx.obj["tui"]
 
 
 @app.command("create")

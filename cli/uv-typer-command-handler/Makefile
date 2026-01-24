@@ -3,6 +3,9 @@
 install:
 	uv tool install . 
 
+reinstall:
+	uv tool uninstall mycli
+	uv tool install . 
 install-dev:
 	uv tool install -e . 
 

@@ -173,3 +173,7 @@ def test_update_user_cli(runner, tmp_path):
 - Unit tests: test handlers with mock/in-memory repository
 - Integration tests: test CLI with CliRunner and temp files
 - No mocking of domain models
+
+## Documentation
+
+For comprehensive codebase architecture, data flow diagrams, and navigation guides, see `docs/CODEBASE_MAP.md`.

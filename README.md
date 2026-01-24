@@ -4,8 +4,16 @@ Project templates for quick bootstrapping with automatic renaming.
 
 ## Quick Start
 
-`nvim ~/.zshrc`
--> add `alias templates="bash <(curl -fsSL 'https://cdn.jsdelivr.net/gh/alek-ellegard/templates@master/get-template.sh')"`
+shell setup:
+
+```bash
+nvim ~/.zshrc
+
+# add:
+alias templates="bash <(curl -fsSL 'https://cdn.jsdelivr.net/gh/alek-ellegard/templates@master/get-template.sh')"
+```
+
+### modes
 
 **Interactive mode:**
 

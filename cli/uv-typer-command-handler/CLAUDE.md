@@ -1,5 +1,7 @@
 # CLAUDE.md - AI Agent Coding Guidelines
 
+read @AGENTS.md for project management
+
 ## Architecture
 
 ```
@@ -13,17 +15,20 @@ Commands are thin. Handlers contain logic. Repository handles persistence.
 ## Design Principles
 
 ### No Backward Compatibility
+
 - Clean breaks allowed
 - No deprecation warnings
 - No legacy support code
 
 ### Tracer Bullet Implementation
+
 - New feature = vertical slice through ALL layers
 - Start with test (TDD)
 - Then: model → repository → handler → command → tui
 - Simple first, enhance later
 
 ### Native Python Only
+
 ```python
 # YES
 class User:
@@ -53,6 +58,7 @@ def user_from_dict(data: dict[str, str]) -> User:
 ```
 
 ### Explicit Types
+
 ```python
 # YES
 def get(self, id: str) -> User | None:
@@ -69,6 +75,7 @@ status: str = "active"
 ```
 
 ### TDD Workflow
+
 1. Write failing test
 2. Implement minimum code to pass
 3. Refactor
@@ -94,6 +101,7 @@ except CLIError as e:
 Example: Add "user update" command
 
 1. **Test first** (`tests/unit/test_handlers.py`):
+
 ```python
 def test_update_user_email():
     repo = InMemoryUserRepository()
@@ -106,11 +114,13 @@ def test_update_user_email():
 2. **Domain** (if needed): Add any new models/enums
 
 3. **Repository** (`repository/base.py`):
+
 ```python
 def update(self, user: User) -> User: ...
 ```
 
 4. **Repository impl** (`repository/json.py`):
+
 ```python
 def update(self, user: User) -> User:
     self._users[user.id] = user
@@ -119,6 +129,7 @@ def update(self, user: User) -> User:
 ```
 
 5. **Handler** (`handlers/users.py`):
+
 ```python
 def update(self, user_id: str, email: str | None = None) -> User:
     user = self.get(user_id)
@@ -128,6 +139,7 @@ def update(self, user_id: str, email: str | None = None) -> User:
 ```
 
 6. **Command** (`commands/users.py`):
+
 ```python
 @app.command("update")
 def update(ctx: typer.Context, user_id: str, email: str) -> None:
@@ -138,6 +150,7 @@ def update(ctx: typer.Context, user_id: str, email: str) -> None:
 ```
 
 7. **Integration test** (`tests/integration/test_cli.py`):
+
 ```python
 def test_update_user_cli(runner, tmp_path):
     # setup

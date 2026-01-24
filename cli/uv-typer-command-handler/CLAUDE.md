@@ -1,7 +1,5 @@
 # CLAUDE.md - AI Agent Coding Guidelines
 
-read @AGENTS.md for project management
-
 ## Architecture
 
 ```

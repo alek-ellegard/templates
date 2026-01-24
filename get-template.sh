@@ -129,17 +129,62 @@ fi
 info "Downloading ${TEMPLATE_PATH}..."
 $DEGIT "${REPO}/${TEMPLATE_PATH}" "$DEST" --force
 
+# Determine working directory for renaming
 if [[ "$DEST" == "." ]]; then
-    success "Template downloaded to current directory"
-    echo ""
-    echo -e "${BOLD}Next steps:${NC}"
-    echo "  make install"
-    echo "  make test"
+    WORK_DIR="$(pwd)"
 else
-    success "Template downloaded to '${DEST}'"
-    echo ""
-    echo -e "${BOLD}Next steps:${NC}"
-    echo "  cd $DEST"
-    echo "  make install"
-    echo "  make test"
+    WORK_DIR="$DEST"
 fi
+
+# Get default project name from directory name
+DEFAULT_NAME=$(basename "$(cd "$WORK_DIR" && pwd)")
+# Sanitize: lowercase, replace dashes/spaces with underscores
+DEFAULT_NAME=$(echo "$DEFAULT_NAME" | tr '[:upper:]' '[:lower:]' | tr '-' '_' | tr ' ' '_')
+
+# Ask for project name
+if [[ -t 0 ]]; then
+    read -rp "Project name [${DEFAULT_NAME}]: " PROJECT_NAME
+    PROJECT_NAME="${PROJECT_NAME:-$DEFAULT_NAME}"
+else
+    PROJECT_NAME="$DEFAULT_NAME"
+fi
+
+# Sanitize project name
+PROJECT_NAME=$(echo "$PROJECT_NAME" | tr '[:upper:]' '[:lower:]' | tr '-' '_' | tr ' ' '_')
+
+# Rename if different from template default
+TEMPLATE_NAME="mycli"
+if [[ "$PROJECT_NAME" != "$TEMPLATE_NAME" ]]; then
+    info "Renaming ${TEMPLATE_NAME} → ${PROJECT_NAME}..."
+
+    # Rename src directory
+    if [[ -d "${WORK_DIR}/src/${TEMPLATE_NAME}" ]]; then
+        mv "${WORK_DIR}/src/${TEMPLATE_NAME}" "${WORK_DIR}/src/${PROJECT_NAME}"
+    fi
+
+    # Update pyproject.toml
+    if [[ -f "${WORK_DIR}/pyproject.toml" ]]; then
+        sed -i.bak "s/name = \"${TEMPLATE_NAME}\"/name = \"${PROJECT_NAME}\"/g" "${WORK_DIR}/pyproject.toml"
+        sed -i.bak "s/${TEMPLATE_NAME} = \"${TEMPLATE_NAME}/${PROJECT_NAME} = \"${PROJECT_NAME}/g" "${WORK_DIR}/pyproject.toml"
+        rm -f "${WORK_DIR}/pyproject.toml.bak"
+    fi
+
+    # Update Python imports in all .py files
+    find "${WORK_DIR}" -name "*.py" -type f -exec sed -i.bak "s/from ${TEMPLATE_NAME}/from ${PROJECT_NAME}/g; s/import ${TEMPLATE_NAME}/import ${PROJECT_NAME}/g" {} \;
+    find "${WORK_DIR}" -name "*.py.bak" -type f -delete
+fi
+
+if [[ "$DEST" == "." ]]; then
+    success "Template '${PROJECT_NAME}' ready in current directory"
+else
+    success "Template '${PROJECT_NAME}' ready in '${DEST}'"
+fi
+
+echo ""
+echo -e "${BOLD}Next steps:${NC}"
+if [[ "$DEST" != "." ]]; then
+    echo "  cd $DEST"
+fi
+echo "  make install"
+echo "  make test"
+echo "  ${PROJECT_NAME} --help"

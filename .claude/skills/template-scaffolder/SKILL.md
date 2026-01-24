@@ -1,6 +1,12 @@
 ---
 name: template-scaffolder
 description: Create new project templates with proper structure. Use when user says "create template", "add template", "scaffold template", or "new template for X".
+hooks:
+  PostToolUse:
+    - matcher: "Write"
+      hooks:
+        - type: command
+          command: bash "${CLAUDE_PROJECT_DIR}/.claude/skills/template-scaffolder/scripts/validate-template.sh"
 ---
 
 # Purpose
@@ -16,6 +22,7 @@ PLACEHOLDER: Python package name used in template (e.g., myapi) - lowercase, und
 ## Instructions
 
 **ALWAYS**:
+
 - Create templates in `<category>/<template-name>/` structure
 - Use a consistent placeholder name throughout (pyproject.toml, src/, imports)
 - Include pyproject.toml with `name` and `description` fields
@@ -24,6 +31,7 @@ PLACEHOLDER: Python package name used in template (e.g., myapi) - lowercase, und
 - Verify template works after creation (make install && make test)
 
 **NEVER**:
+
 - Modify existing templates (only create new ones)
 - Skip placeholder setup - the renaming system depends on it
 - Create templates outside category directories
@@ -35,6 +43,7 @@ PLACEHOLDER: Python package name used in template (e.g., myapi) - lowercase, und
 ### 1. Gather Requirements
 
 Ask user for:
+
 1. **Category**: What type of project? (cli, api, lib, service)
 2. **Template name**: Descriptive kebab-case name (e.g., fastapi-starter)
 3. **Placeholder**: Package name to use (default: myapi for api, mycli for cli, etc.)
@@ -89,12 +98,14 @@ testpaths = ["tests"]
 
 ### 4. Create Source Files
 
-**src/<placeholder>/__init__.py**:
+**src/<placeholder>/**init**.py**:
+
 ```python
 __version__ = "0.1.0"
 ```
 
 **src/<placeholder>/main.py**:
+
 ```python
 def run() -> None:
     """Entry point."""
@@ -110,37 +121,39 @@ if __name__ == "__main__":
 .PHONY: install format lint test ci clean
 
 install:
-	uv sync
+ uv sync
 
 format:
-	uv run ruff format .
-	uv run ruff check --fix .
+ uv run ruff format .
+ uv run ruff check --fix .
 
 lint:
-	uv run ruff check .
+ uv run ruff check .
 
 test:
-	uv run pytest tests -v
+ uv run pytest tests -v
 
 ci: install lint test
 
 clean:
-	rm -rf .venv __pycache__ .pytest_cache .ruff_cache
-	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+ rm -rf .venv __pycache__ .pytest_cache .ruff_cache
+ find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 ```
 
 ### 6. Create Tests
 
-**tests/__init__.py**: empty
+**tests/**init**.py**: empty
 
 **tests/conftest.py**:
+
 ```python
 import pytest
 ```
 
-**tests/unit/__init__.py**: empty
+**tests/unit/**init**.py**: empty
 
 **tests/unit/test_main.py**:
+
 ```python
 from <placeholder>.main import run
 
@@ -153,6 +166,7 @@ def test_run(capsys):
 ### 7. Create Supporting Files
 
 **.gitignore**:
+
 ```
 .venv/
 __pycache__/
@@ -209,6 +223,7 @@ make install && make test
 ### How Templates Are Consumed
 
 When users download a template via `get-template.sh`:
+
 1. Script reads `name` from pyproject.toml to find placeholder
 2. Renames `src/<placeholder>/` to `src/<project_name>/`
 3. Updates pyproject.toml name and entrypoint

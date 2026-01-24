@@ -1,5 +1,18 @@
 # Agent Instructions
 
+## Template Note
+
+This is a **CLI template**. The `.beads/` directory is gitignored because template-building issues shouldn't ship with the template.
+
+**If developing this template further:**
+1. Run `bd init` to create fresh beads
+2. Or remove `.beads/` from `.gitignore` to track issues
+
+**If using this template for a new project:**
+- Copy the template, run `bd init`, and track `.beads/` in your new repo
+
+---
+
 This project uses **bd** (beads) for issue tracking. Run `bd onboard` to get started.
 
 ## Quick Reference

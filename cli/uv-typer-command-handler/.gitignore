@@ -1,3 +1,7 @@
+# Beads issue tracking (template-specific issues not shipped with template)
+# Ungitignore if actively developing this template with beads
+.beads/
+
 # bv (beads viewer) local config and caches
 .bv/
 

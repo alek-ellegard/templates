@@ -36,8 +36,8 @@ curl -fsSL "$ARCHIVE_URL" | tar -xz -C "$TEMP_DIR"
 REPO_DIR="${TEMP_DIR}/templates-${BRANCH}"
 
 # Discover templates by finding pyproject.toml files and extract metadata
-TEMPLATES_JSON=$(python3 << 'PYTHON' "$REPO_DIR"
-import sys
+TEMPLATES_JSON=$(REPO_DIR="$REPO_DIR" python3 << 'PYTHON'
+import os
 import json
 from pathlib import Path
 
@@ -46,7 +46,7 @@ try:
 except ImportError:
     import tomli as tomllib  # fallback for Python < 3.11
 
-repo_dir = Path(sys.argv[1])
+repo_dir = Path(os.environ["REPO_DIR"])
 templates = []
 
 for pyproject in repo_dir.rglob("pyproject.toml"):

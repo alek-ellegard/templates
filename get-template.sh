@@ -127,7 +127,7 @@ fi
 
 # Download using degit
 info "Downloading ${TEMPLATE_PATH}..."
-$DEGIT "${REPO}/${TEMPLATE_PATH}" "$DEST"
+$DEGIT "${REPO}/${TEMPLATE_PATH}" "$DEST" --force
 
 if [[ "$DEST" == "." ]]; then
     success "Template downloaded to current directory"

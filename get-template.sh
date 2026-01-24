@@ -136,6 +136,22 @@ else
     WORK_DIR="$DEST"
 fi
 
+# Auto-detect template placeholder name from pyproject.toml
+if [[ -f "${WORK_DIR}/pyproject.toml" ]]; then
+    TEMPLATE_NAME=$(python3 -c "
+import sys
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
+with open('${WORK_DIR}/pyproject.toml', 'rb') as f:
+    data = tomllib.load(f)
+print(data.get('project', {}).get('name', 'mycli'))
+" 2>/dev/null) || TEMPLATE_NAME="mycli"
+else
+    TEMPLATE_NAME="mycli"
+fi
+
 # Get default project name from directory name
 DEFAULT_NAME=$(basename "$(cd "$WORK_DIR" && pwd)")
 # Sanitize: lowercase, replace dashes/spaces with underscores
@@ -151,9 +167,6 @@ fi
 
 # Sanitize project name
 PROJECT_NAME=$(echo "$PROJECT_NAME" | tr '[:upper:]' '[:lower:]' | tr '-' '_' | tr ' ' '_')
-
-# Rename if different from template default
-TEMPLATE_NAME="mycli"
 if [[ "$PROJECT_NAME" != "$TEMPLATE_NAME" ]]; then
     info "Renaming ${TEMPLATE_NAME} → ${PROJECT_NAME}..."
 

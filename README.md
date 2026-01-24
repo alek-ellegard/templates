@@ -1,20 +1,36 @@
 # Templates
 
-A collection of project templates for quick bootstrapping.
+Project templates for quick bootstrapping with automatic renaming.
 
 ## Quick Start
 
-**Interactive picker (with fzf):**
 ```bash
+mkdir my-project && cd my-project
+git init
 bash <(curl -fsSL "https://cdn.jsdelivr.net/gh/alek-ellegard/templates@master/get-template.sh")
 ```
 
-**Direct download:**
+The script will:
+1. Show available categories (cli, api, etc.)
+2. Show templates in selected category
+3. Download to current directory
+4. Prompt for project name (default: directory name)
+5. Rename all references from template placeholder to your project name
+
+## Direct Download (without renaming)
+
 ```bash
 npx degit alek-ellegard/templates/cli/uv-typer-command-handler my-project
 ```
 
-## Adding New Templates
+## Creating New Templates
 
-1. Create your template in a category directory (e.g., `cli/`, `api/`)
-2. Templates are auto-discovered from the repo structure
+See [ai_docs/guide.md](ai_docs/guide.md) for detailed instructions.
+
+**Quick summary:**
+1. Create `<category>/<template-name>/` directory
+2. Use a placeholder name (e.g., `myapi`) consistently in:
+   - `src/<placeholder>/` directory
+   - `pyproject.toml` name field
+   - All Python imports
+3. The script auto-detects the placeholder from `pyproject.toml`

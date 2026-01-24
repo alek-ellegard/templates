@@ -49,4 +49,6 @@ def runner() -> CliRunner:
 
 @pytest.fixture
 def tmp_data_dir(tmp_path: Path) -> Path:
-    return tmp_path / "mycli"
+    data_dir = tmp_path / "mycli"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    return data_dir

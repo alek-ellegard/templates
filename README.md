@@ -4,18 +4,33 @@ Project templates for quick bootstrapping with automatic renaming.
 
 ## Quick Start
 
+**Interactive mode:**
 ```bash
 mkdir my-project && cd my-project
 git init
 bash <(curl -fsSL "https://cdn.jsdelivr.net/gh/alek-ellegard/templates@master/get-template.sh")
 ```
 
-The script will:
-1. Show available categories (cli, api, etc.)
-2. Show templates in selected category
-3. Download to current directory
-4. Prompt for project name (default: directory name)
-5. Rename all references from template placeholder to your project name
+**Non-interactive mode (for agents/scripts):**
+```bash
+./get-template.sh -c cli -t uv-typer-command-handler -n my_project
+```
+
+**List available templates:**
+```bash
+./get-template.sh --list
+```
+
+## Options
+
+| Option | Description |
+|--------|-------------|
+| `-c, --category` | Template category (cli, api, lib, etc.) |
+| `-t, --template` | Template name within category |
+| `-d, --dest` | Destination directory (default: current dir) |
+| `-n, --name` | Project name for renaming (default: directory name) |
+| `-l, --list` | List available templates and exit |
+| `-h, --help` | Show help message |
 
 ## Direct Download (without renaming)
 

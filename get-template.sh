@@ -126,8 +126,6 @@ else
     DEST="$DEFAULT_DEST"
 fi
 
-[[ -e "$DEST" ]] && error "Destination '$DEST' already exists"
-
 # Download using degit
 info "Downloading ${TEMPLATE_PATH}..."
 $DEGIT "${REPO}/${TEMPLATE_PATH}" "$DEST"

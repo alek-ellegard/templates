@@ -3,6 +3,7 @@
 
 # Python build artifacts
 *.egg-info/
+**/*.egg-info/
 __pycache__/
 *.pyc
 *.pyo

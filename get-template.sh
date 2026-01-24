@@ -117,22 +117,29 @@ SELECTED_TMPL=$(select_item "Select template:" "${TMPL_ARRAY[@]}")
 
 TEMPLATE_PATH="${SELECTED_CAT}/${SELECTED_TMPL}"
 
-# Ask for destination directory
-DEFAULT_DEST="${SELECTED_TMPL}"
+# Ask for destination directory (default: current directory)
 if [[ -t 0 ]]; then
-    read -rp "Destination directory [${DEFAULT_DEST}]: " DEST
-    DEST="${DEST:-$DEFAULT_DEST}"
+    read -rp "Destination [. = current dir]: " DEST
+    DEST="${DEST:-.}"
 else
-    DEST="$DEFAULT_DEST"
+    DEST="."
 fi
 
 # Download using degit
 info "Downloading ${TEMPLATE_PATH}..."
 $DEGIT "${REPO}/${TEMPLATE_PATH}" "$DEST"
 
-success "Template downloaded to '${DEST}'"
-echo ""
-echo -e "${BOLD}Next steps:${NC}"
-echo "  cd $DEST"
-echo "  make install"
-echo "  make test"
+if [[ "$DEST" == "." ]]; then
+    success "Template downloaded to current directory"
+    echo ""
+    echo -e "${BOLD}Next steps:${NC}"
+    echo "  make install"
+    echo "  make test"
+else
+    success "Template downloaded to '${DEST}'"
+    echo ""
+    echo -e "${BOLD}Next steps:${NC}"
+    echo "  cd $DEST"
+    echo "  make install"
+    echo "  make test"
+fi

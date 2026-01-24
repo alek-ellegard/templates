@@ -1,2 +1,13 @@
 # bv (beads viewer) local config and caches
 .bv/
+
+# Python build artifacts
+*.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+dist/
+build/
+
+# User notes
+prompt.md

@@ -1,5 +1,7 @@
 """Unit tests for TUI console module."""
 
+from unittest.mock import ANY, patch
+
 from mycli.domain import User, UserStatus
 from mycli.tui import TUI
 
@@ -79,7 +81,6 @@ def test_user_table_empty(capsys):
 def test_prompt(monkeypatch):
     """Test prompt gets user input."""
     tui = TUI()
-    # Mock user input
     monkeypatch.setattr("builtins.input", lambda _: "test input")
     result = tui.prompt("Enter something:")
     assert result == "test input"
@@ -88,7 +89,6 @@ def test_prompt(monkeypatch):
 def test_confirm_yes(monkeypatch):
     """Test confirm returns True for yes responses."""
     tui = TUI()
-    # Mock user input with 'y'
     monkeypatch.setattr("builtins.input", lambda _: "y")
     result = tui.confirm("Are you sure?")
     assert result is True
@@ -97,7 +97,6 @@ def test_confirm_yes(monkeypatch):
 def test_confirm_no(monkeypatch):
     """Test confirm returns False for no responses."""
     tui = TUI()
-    # Mock user input with 'n'
     monkeypatch.setattr("builtins.input", lambda _: "n")
     result = tui.confirm("Are you sure?")
     assert result is False
@@ -117,3 +116,34 @@ def test_confirm_default_no(monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: "maybe")
     result = tui.confirm("Are you sure?")
     assert result is False
+
+
+def test_checkbox():
+    """Test checkbox returns selected choices."""
+    tui = TUI()
+    choices = ["Option A", "Option B", "Option C"]
+    with patch("mycli.tui.console.questionary.checkbox") as mock_checkbox:
+        mock_checkbox.return_value.unsafe_ask.return_value = ["Option A", "Option C"]
+        result = tui.checkbox("Pick items:", choices)
+        mock_checkbox.assert_called_once_with("Pick items:", choices=choices, style=ANY)
+    assert result == ["Option A", "Option C"]
+
+
+def test_checkbox_none_selected():
+    """Test checkbox returns empty list when nothing selected."""
+    tui = TUI()
+    with patch("mycli.tui.console.questionary.checkbox") as mock_checkbox:
+        mock_checkbox.return_value.unsafe_ask.return_value = []
+        result = tui.checkbox("Pick items:", ["A", "B"])
+    assert result == []
+
+
+def test_select():
+    """Test select returns single chosen option."""
+    tui = TUI()
+    choices = ["Option A", "Option B"]
+    with patch("mycli.tui.console.questionary.select") as mock_select:
+        mock_select.return_value.unsafe_ask.return_value = "Option B"
+        result = tui.select("Pick one:", choices)
+        mock_select.assert_called_once_with("Pick one:", choices=choices, style=ANY)
+    assert result == "Option B"

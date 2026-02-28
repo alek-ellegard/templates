@@ -1,7 +1,15 @@
 """TUI console module for CLI output."""
 
+import questionary
+from questionary import Style
 from rich.console import Console
 from rich.table import Table
+
+QUESTIONARY_STYLE = Style([
+    ("selected", "fg:green noreverse"),
+    ("pointer", "fg:green bold"),
+    ("highlighted", "bold"),
+])
 
 from mycli.domain import User
 
@@ -96,3 +104,27 @@ class TUI:
         """
         response = input(f"{message} [y/N] ").strip().lower()
         return response in ("y", "yes")
+
+    def checkbox(self, message: str, choices: list[str]) -> list[str]:
+        """Display a checkbox prompt for multi-select.
+
+        Args:
+            message: Prompt message to display
+            choices: List of choices to select from
+
+        Returns:
+            List of selected choices
+        """
+        return questionary.checkbox(message, choices=choices, style=QUESTIONARY_STYLE).unsafe_ask()
+
+    def select(self, message: str, choices: list[str]) -> str:
+        """Display a select prompt for single-select.
+
+        Args:
+            message: Prompt message to display
+            choices: List of choices to select from
+
+        Returns:
+            Selected choice
+        """
+        return questionary.select(message, choices=choices, style=QUESTIONARY_STYLE).unsafe_ask()

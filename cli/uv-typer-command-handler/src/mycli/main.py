@@ -6,7 +6,7 @@ from mycli.config import AppConfig, AppContext
 from mycli.repository.json import JsonUserRepository
 from mycli.handlers.users import UserHandler
 from mycli.tui.console import TUI
-from mycli.commands import users
+from mycli.commands import users, demo
 from mycli.exceptions import CLIError
 
 app = typer.Typer(
@@ -16,6 +16,7 @@ app = typer.Typer(
 )
 
 app.add_typer(users.app, name="users")
+app.add_typer(demo.app, name="demo")
 
 
 @app.callback()

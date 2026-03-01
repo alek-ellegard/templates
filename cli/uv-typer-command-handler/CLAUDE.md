@@ -1,4 +1,4 @@
-# CLAUDE.md - AI Agent Coding Guidelines
+# CLAUDE.md - CLI Command Handler Architecture
 
 ## Architecture
 
@@ -12,12 +12,6 @@ Commands are thin. Handlers contain logic. Repository handles persistence.
 
 ## Design Principles
 
-### No Backward Compatibility
-
-- Clean breaks allowed
-- No deprecation warnings
-- No legacy support code
-
 ### Tracer Bullet Implementation
 
 - New feature = vertical slice through ALL layers
@@ -28,48 +22,35 @@ Commands are thin. Handlers contain logic. Repository handles persistence.
 ### Native Python Only
 
 ```python
-# YES
-class User:
-    def __init__(self, id: str, email: str) -> None:
+# YES - plain class
+class Item:
+    def __init__(self, id: str, name: str) -> None:
         self.id = id
-        self.email = email
+        self.name = name
 
-# NO - dataclass
-@dataclass
-class User:
-    id: str
-    email: str
-
-# NO - pydantic
-class User(BaseModel):
-    id: str
-    email: str
-
-# NO - classmethod
-@classmethod
-def from_dict(cls, data: dict) -> "User":
-    ...
+# NO - dataclass, pydantic, attrs
 
 # YES - factory function
-def user_from_dict(data: dict[str, str]) -> User:
-    return User(id=data["id"], email=data["email"])
+def item_from_dict(data: dict[str, str]) -> Item:
+    return Item(id=data["id"], name=data["name"])
+
+# NO - classmethod constructors
 ```
 
 ### Explicit Types
 
 ```python
 # YES
-def get(self, id: str) -> User | None:
+def get(self, id: str) -> Item | None:
 
 # NO
-def get(self, id: str) -> Optional[User]:
+def get(self, id: str) -> Optional[Item]:
 
-# YES - StrEnum
+# YES - StrEnum for fixed values
 class Status(StrEnum):
     ACTIVE = "active"
 
-# NO - plain strings
-status: str = "active"
+# NO - plain strings for fixed values
 ```
 
 ### TDD Workflow
@@ -81,12 +62,12 @@ status: str = "active"
 
 ## Error Handling
 
-Exceptions bubble up from repository → handler → command → main.
+Exceptions bubble up: repository → handler → command → main.
 
 ```python
 # In handler
-if user is None:
-    raise UserNotFoundError(f"User {id} not found")
+if item is None:
+    raise ItemNotFoundError(f"Item {id} not found")
 
 # In main.py
 except CLIError as e:
@@ -96,65 +77,15 @@ except CLIError as e:
 
 ## Adding a New Feature
 
-Example: Add "user update" command
+Vertical slice through all layers:
 
-1. **Test first** (`tests/unit/test_handlers.py`):
-
-```python
-def test_update_user_email():
-    repo = InMemoryUserRepository()
-    handler = UserHandler(repo)
-    user = handler.create("old@example.com")
-    updated = handler.update(user.id, email="new@example.com")
-    assert updated.email == "new@example.com"
-```
-
-2. **Domain** (if needed): Add any new models/enums
-
-3. **Repository** (`repository/base.py`):
-
-```python
-def update(self, user: User) -> User: ...
-```
-
-4. **Repository impl** (`repository/json.py`):
-
-```python
-def update(self, user: User) -> User:
-    self._users[user.id] = user
-    self.save()
-    return user
-```
-
-5. **Handler** (`handlers/users.py`):
-
-```python
-def update(self, user_id: str, email: str | None = None) -> User:
-    user = self.get(user_id)
-    if email is not None:
-        user.email = email
-    return self.repository.update(user)
-```
-
-6. **Command** (`commands/users.py`):
-
-```python
-@app.command("update")
-def update(ctx: typer.Context, user_id: str, email: str) -> None:
-    handler = get_handler(ctx)
-    tui = get_tui(ctx)
-    user = handler.update(user_id, email=email)
-    tui.success(f"Updated user {user_id}")
-```
-
-7. **Integration test** (`tests/integration/test_cli.py`):
-
-```python
-def test_update_user_cli(runner, tmp_path):
-    # setup
-    result = runner.invoke(app, ["users", "update", user_id, "--email", "new@test.com"])
-    assert result.exit_code == 0
-```
+1. **Test first** (`tests/unit/test_handlers.py`)
+2. **Domain** (`domain/models.py`) — add models/enums if needed
+3. **Repository protocol** (`repository/base.py`) — add method signature
+4. **Repository impl** (`repository/json.py`) — implement persistence
+5. **Handler** (`handlers/{resource}.py`) — business logic
+6. **Command** (`commands/{resource}.py`) — thin CLI entry point
+7. **Integration test** (`tests/integration/test_cli.py`)
 
 ## File Naming
 
@@ -168,10 +99,6 @@ def test_update_user_cli(runner, tmp_path):
 
 ## Testing
 
-- Unit tests: test handlers with mock/in-memory repository
+- Unit tests: test handlers with in-memory repository
 - Integration tests: test CLI with CliRunner and temp files
 - No mocking of domain models
-
-## Documentation
-
-For comprehensive codebase architecture, data flow diagrams, and navigation guides, see `docs/CODEBASE_MAP.md`.

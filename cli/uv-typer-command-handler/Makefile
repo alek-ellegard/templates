@@ -28,7 +28,7 @@ lint: ## lint
 types: ## types check
 	uv run ty check src
 
-test:
+test: ## test
 	uv run pytest
 
 clean:
